@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 GEX_VERSION="1.0.0"
-GEX_REPO="https://github.com/user/gex"
+GEX_REPO="git@github.com:dmitryzhvinklis/gex.git"
 INSTALL_DIR="/usr/local/bin"
 CONFIG_DIR="$HOME/.config/gex"
 SHELL_CONFIG_FILES=("$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile")
