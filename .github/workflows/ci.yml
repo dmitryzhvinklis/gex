@@ -1,0 +1,156 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main, development ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        go-version: ['1.21', '1.22']
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ matrix.go-version }}
+        
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-${{ matrix.go-version }}-
+          
+    - name: Download dependencies
+      run: go mod download
+      
+    - name: Verify dependencies
+      run: go mod verify
+      
+    - name: Run tests
+      run: go test -v -race -coverprofile=coverage.out ./...
+      
+    - name: Upload coverage to Codecov
+      if: matrix.go-version == '1.21'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.out
+        
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        goos: [linux]
+        goarch: [amd64, arm64, 386]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+        
+    - name: Build
+      env:
+        GOOS: ${{ matrix.goos }}
+        GOARCH: ${{ matrix.goarch }}
+      run: |
+        go build -ldflags="-s -w" -o gex-${{ matrix.goos }}-${{ matrix.goarch }} .
+        
+    - name: Test binary
+      if: matrix.goarch == 'amd64'
+      run: |
+        echo "help" | ./gex-${{ matrix.goos }}-${{ matrix.goarch }}
+        
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+        
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v3
+      with:
+        version: latest
+        args: --timeout=5m
+        
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+        
+    - name: Run Gosec Security Scanner
+      uses: securecodewarrior/github-action-gosec@master
+      with:
+        args: './...'
+        
+  performance:
+    name: Performance Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+        
+    - name: Build optimized binary
+      run: |
+        go build -ldflags="-s -w" -o gex-perf .
+        
+    - name: Performance benchmarks
+      run: |
+        # Startup time test
+        echo "Testing startup performance..."
+        for i in {1..5}; do
+          start_time=$(date +%s%N)
+          echo "exit" | ./gex-perf > /dev/null 2>&1
+          end_time=$(date +%s%N)
+          startup_time=$(( (end_time - start_time) / 1000000 ))
+          echo "Run $i: ${startup_time}ms"
+        done
+        
+        # Command execution test
+        echo "Testing command execution performance..."
+        start_time=$(date +%s%N)
+        echo -e "pwd\necho test\nwhich ls\nexit" | ./gex-perf > /dev/null 2>&1
+        end_time=$(date +%s%N)
+        execution_time=$(( (end_time - start_time) / 1000000 ))
+        echo "Command execution: ${execution_time}ms"
+        
+        # Memory usage test
+        echo "Testing memory usage..."
+        /usr/bin/time -v ./gex-perf -c "exit" 2>&1 | grep "Maximum resident set size" || echo "Memory test completed"

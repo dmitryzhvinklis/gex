@@ -53,6 +53,7 @@ func GetAllBuiltins() map[string]*CommandInfo {
 
 // Built-in commands registry
 var builtinCommands = map[string]*CommandInfo{
+	// Basic shell commands
 	"cd": {
 		Name:        "cd",
 		Type:        CommandBuiltin,
@@ -124,6 +125,224 @@ var builtinCommands = map[string]*CommandInfo{
 		Type:        CommandBuiltin,
 		Description: "Display information about command type",
 		Usage:       "type command...",
+	},
+
+	// File operations
+	"ls": {
+		Name:        "ls",
+		Type:        CommandBuiltin,
+		Description: "List directory contents",
+		Usage:       "ls [options] [files...]",
+	},
+	"mkdir": {
+		Name:        "mkdir",
+		Type:        CommandBuiltin,
+		Description: "Create directories",
+		Usage:       "mkdir [options] directory...",
+	},
+	"rmdir": {
+		Name:        "rmdir",
+		Type:        CommandBuiltin,
+		Description: "Remove empty directories",
+		Usage:       "rmdir directory...",
+	},
+	"rm": {
+		Name:        "rm",
+		Type:        CommandBuiltin,
+		Description: "Remove files and directories",
+		Usage:       "rm [options] file...",
+	},
+	"cp": {
+		Name:        "cp",
+		Type:        CommandBuiltin,
+		Description: "Copy files and directories",
+		Usage:       "cp [options] source... destination",
+	},
+	"mv": {
+		Name:        "mv",
+		Type:        CommandBuiltin,
+		Description: "Move/rename files and directories",
+		Usage:       "mv source... destination",
+	},
+	"touch": {
+		Name:        "touch",
+		Type:        CommandBuiltin,
+		Description: "Create empty files or update timestamps",
+		Usage:       "touch file...",
+	},
+
+	// Text operations
+	"cat": {
+		Name:        "cat",
+		Type:        CommandBuiltin,
+		Description: "Display file contents",
+		Usage:       "cat [file...]",
+	},
+	"head": {
+		Name:        "head",
+		Type:        CommandBuiltin,
+		Description: "Display first lines of files",
+		Usage:       "head [options] [file...]",
+	},
+	"tail": {
+		Name:        "tail",
+		Type:        CommandBuiltin,
+		Description: "Display last lines of files",
+		Usage:       "tail [options] [file...]",
+	},
+	"wc": {
+		Name:        "wc",
+		Type:        CommandBuiltin,
+		Description: "Count lines, words, and characters",
+		Usage:       "wc [options] [file...]",
+	},
+	"grep": {
+		Name:        "grep",
+		Type:        CommandBuiltin,
+		Description: "Search for patterns in files",
+		Usage:       "grep [options] pattern [file...]",
+	},
+	"sort": {
+		Name:        "sort",
+		Type:        CommandBuiltin,
+		Description: "Sort lines in files",
+		Usage:       "sort [options] [file...]",
+	},
+
+	// System operations
+	"ps": {
+		Name:        "ps",
+		Type:        CommandBuiltin,
+		Description: "Display running processes",
+		Usage:       "ps [options]",
+	},
+	"kill": {
+		Name:        "kill",
+		Type:        CommandBuiltin,
+		Description: "Send signals to processes",
+		Usage:       "kill [signal] pid...",
+	},
+	"df": {
+		Name:        "df",
+		Type:        CommandBuiltin,
+		Description: "Display filesystem disk space usage",
+		Usage:       "df [options] [filesystem...]",
+	},
+	"du": {
+		Name:        "du",
+		Type:        CommandBuiltin,
+		Description: "Display directory disk usage",
+		Usage:       "du [options] [directory...]",
+	},
+	"free": {
+		Name:        "free",
+		Type:        CommandBuiltin,
+		Description: "Display memory usage",
+		Usage:       "free [options]",
+	},
+	"uptime": {
+		Name:        "uptime",
+		Type:        CommandBuiltin,
+		Description: "Display system uptime",
+		Usage:       "uptime",
+	},
+	"uname": {
+		Name:        "uname",
+		Type:        CommandBuiltin,
+		Description: "Display system information",
+		Usage:       "uname [options]",
+	},
+
+	// Search operations
+	"find": {
+		Name:        "find",
+		Type:        CommandBuiltin,
+		Description: "Search for files and directories",
+		Usage:       "find [path] [options]",
+	},
+	"locate": {
+		Name:        "locate",
+		Type:        CommandBuiltin,
+		Description: "Find files by name in database",
+		Usage:       "locate pattern",
+	},
+
+	// Permission operations
+	"chmod": {
+		Name:        "chmod",
+		Type:        CommandBuiltin,
+		Description: "Change file permissions",
+		Usage:       "chmod [options] mode file...",
+	},
+	"chown": {
+		Name:        "chown",
+		Type:        CommandBuiltin,
+		Description: "Change file ownership",
+		Usage:       "chown [options] owner[:group] file...",
+	},
+	"chgrp": {
+		Name:        "chgrp",
+		Type:        CommandBuiltin,
+		Description: "Change group ownership",
+		Usage:       "chgrp [options] group file...",
+	},
+
+	// Network operations
+	"ping": {
+		Name:        "ping",
+		Type:        CommandBuiltin,
+		Description: "Send ICMP echo requests",
+		Usage:       "ping [options] host",
+	},
+	"wget": {
+		Name:        "wget",
+		Type:        CommandBuiltin,
+		Description: "Download files from web",
+		Usage:       "wget [options] URL",
+	},
+	"curl": {
+		Name:        "curl",
+		Type:        CommandBuiltin,
+		Description: "Transfer data from/to servers",
+		Usage:       "curl [options] URL",
+	},
+	"netstat": {
+		Name:        "netstat",
+		Type:        CommandBuiltin,
+		Description: "Display network connections",
+		Usage:       "netstat [options]",
+	},
+
+	// Archive operations
+	"tar": {
+		Name:        "tar",
+		Type:        CommandBuiltin,
+		Description: "Archive files",
+		Usage:       "tar [options] archive files...",
+	},
+	"gzip": {
+		Name:        "gzip",
+		Type:        CommandBuiltin,
+		Description: "Compress files",
+		Usage:       "gzip [options] file...",
+	},
+	"gunzip": {
+		Name:        "gunzip",
+		Type:        CommandBuiltin,
+		Description: "Decompress gzip files",
+		Usage:       "gunzip [options] file...",
+	},
+	"zip": {
+		Name:        "zip",
+		Type:        CommandBuiltin,
+		Description: "Create zip archives",
+		Usage:       "zip [options] archive files...",
+	},
+	"unzip": {
+		Name:        "unzip",
+		Type:        CommandBuiltin,
+		Description: "Extract zip archives",
+		Usage:       "unzip [options] archive",
 	},
 }
 
