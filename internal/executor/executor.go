@@ -60,6 +60,7 @@ func (e *Executor) executeSingle(cmd *cli.Command) error {
 // executeBuiltin executes a built-in command
 func (e *Executor) executeBuiltin(cmd *cli.Command) error {
 	switch cmd.Name {
+	// Basic shell commands
 	case "cd":
 		return builtin.Cd(cmd.Args, e.session)
 	case "pwd":
@@ -84,6 +85,89 @@ func (e *Executor) executeBuiltin(cmd *cli.Command) error {
 		return builtin.Which(cmd.Args)
 	case "type":
 		return builtin.Type(cmd.Args, e.session)
+
+	// File operations
+	case "ls":
+		return builtin.Ls(cmd.Args)
+	case "mkdir":
+		return builtin.Mkdir(cmd.Args)
+	case "rmdir":
+		return builtin.Rmdir(cmd.Args)
+	case "rm":
+		return builtin.Rm(cmd.Args)
+	case "cp":
+		return builtin.Cp(cmd.Args)
+	case "mv":
+		return builtin.Mv(cmd.Args)
+	case "touch":
+		return builtin.Touch(cmd.Args)
+
+	// Text operations
+	case "cat":
+		return builtin.Cat(cmd.Args)
+	case "head":
+		return builtin.Head(cmd.Args)
+	case "tail":
+		return builtin.Tail(cmd.Args)
+	case "wc":
+		return builtin.Wc(cmd.Args)
+	case "grep":
+		return builtin.Grep(cmd.Args)
+	case "sort":
+		return builtin.Sort(cmd.Args)
+
+	// System operations
+	case "ps":
+		return builtin.Ps(cmd.Args)
+	case "kill":
+		return builtin.Kill(cmd.Args)
+	case "df":
+		return builtin.Df(cmd.Args)
+	case "du":
+		return builtin.Du(cmd.Args)
+	case "free":
+		return builtin.Free(cmd.Args)
+	case "uptime":
+		return builtin.Uptime(cmd.Args)
+	case "uname":
+		return builtin.Uname(cmd.Args)
+
+	// Search operations
+	case "find":
+		return builtin.Find(cmd.Args)
+	case "locate":
+		return builtin.Locate(cmd.Args)
+
+	// Permission operations
+	case "chmod":
+		return builtin.Chmod(cmd.Args)
+	case "chown":
+		return builtin.Chown(cmd.Args)
+	case "chgrp":
+		return builtin.Chgrp(cmd.Args)
+
+	// Network operations
+	case "ping":
+		return builtin.Ping(cmd.Args)
+	case "wget":
+		return builtin.Wget(cmd.Args)
+	case "curl":
+		return builtin.Curl(cmd.Args)
+	case "netstat":
+		return builtin.Netstat(cmd.Args)
+
+	// Archive operations
+	case "tar":
+		return builtin.Tar(cmd.Args)
+	case "gzip":
+		return builtin.Gzip(cmd.Args)
+	case "gunzip":
+		return builtin.Gzip(append([]string{"-d"}, cmd.Args...))
+	case "zip":
+		return builtin.Zip(cmd.Args)
+	case "unzip":
+		return builtin.Zip(append([]string{"-x"}, cmd.Args...))
+
 	default:
 		return fmt.Errorf("unknown built-in command: %s", cmd.Name)
 	}
@@ -179,6 +263,17 @@ func (e *Executor) executePipeline(cmd *cli.Command) error {
 	commands := []*cli.Command{cmd}
 	commands = append(commands, cmd.Pipes...)
 
+	// Check if pipeline contains built-in commands
+	if hasBuiltinCommand(commands) {
+		return e.executeBuiltinPipeline(commands)
+	}
+
+	// Execute external command pipeline
+	return e.executeExternalPipeline(commands)
+}
+
+// executeExternalPipeline executes a pipeline of external commands
+func (e *Executor) executeExternalPipeline(commands []*cli.Command) error {
 	// Create pipes between commands
 	var pipes []*os.File
 	var readers []*os.File
@@ -207,11 +302,6 @@ func (e *Executor) executePipeline(cmd *cli.Command) error {
 	var wg sync.WaitGroup
 
 	for i, command := range commands {
-		// Handle built-in commands in pipeline
-		if cli.IsBuiltin(command.Name) {
-			return errors.New("built-in commands in pipelines not yet supported")
-		}
-
 		execPath, err := e.findExecutable(command.Name)
 		if err != nil {
 			return fmt.Errorf("command not found: %s", command.Name)

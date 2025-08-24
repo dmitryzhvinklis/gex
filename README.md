@@ -142,27 +142,7 @@ make memprofile
 - Go 1.21 or later
 - Linux (tested on Ubuntu, Debian, CentOS, Arch)
 
-### Build Commands
-
-```bash
-# Development build
-make build
-
-# Optimized release build
-make release
-
-# Run tests
-make test
-
-# Install to system
-make install
-
-# Create distribution package
-make dist
-```
-
 ## License
 
 MIT License - see LICENSE file for details.
 
----
