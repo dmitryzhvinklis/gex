@@ -264,24 +264,6 @@ EOF
     log_success "Shell completions configured"
 }
 
-verify_installation() {
-    log_info "Verifying installation..."
-    
-    # Check if gex is in PATH
-    if ! command -v gex &> /dev/null; then
-        log_error "Gex is not in PATH. Please restart your terminal or run: source ~/.bashrc"
-        return 1
-    fi
-    
-    # Check if gex runs
-    if ! gex --version &> /dev/null; then
-        log_error "Gex binary is not working correctly"
-        return 1
-    fi
-    
-    log_success "Installation verified successfully"
-}
-
 show_post_install() {
     echo ""
     echo -e "${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"

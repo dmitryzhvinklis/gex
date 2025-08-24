@@ -10,6 +10,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"gex/internal/ui"
 )
 
 // Ls lists directory contents (like ls command)
@@ -96,9 +98,14 @@ func listDirectory(path string, showHidden, longFormat, humanReadable, sortByTim
 		return printLongFormat(files, path, humanReadable)
 	}
 
-	// Simple format
+	// Simple format with colors
 	for _, file := range files {
-		fmt.Printf("%s  ", file.Name())
+		info, _ := file.Info()
+		isDir := file.IsDir()
+		isExecutable := info != nil && info.Mode()&0111 != 0
+
+		coloredName := ui.ColorizeFilename(file.Name(), isDir, isExecutable)
+		fmt.Printf("%s  ", coloredName)
 	}
 	if len(files) > 0 {
 		fmt.Println()
@@ -140,8 +147,13 @@ func printLongFormat(files []os.DirEntry, basePath string, humanReadable bool) e
 		// Modification time
 		modTime := info.ModTime().Format("Jan 02 15:04")
 
+		// Colorize filename
+		isDir := info.IsDir()
+		isExecutable := info.Mode()&0111 != 0
+		coloredName := ui.ColorizeFilename(file.Name(), isDir, isExecutable)
+
 		fmt.Printf("%s %s %s %s %8s %s %s\n",
-			modeStr, links, owner, group, sizeStr, modTime, file.Name())
+			modeStr, links, owner, group, sizeStr, modTime, coloredName)
 	}
 
 	return nil
