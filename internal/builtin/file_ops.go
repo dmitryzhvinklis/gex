@@ -129,7 +129,7 @@ func printLongFormat(files []os.DirEntry, basePath string, humanReadable bool) e
 		// Number of links (simplified)
 		links := "1"
 		if stat, ok := info.Sys().(*syscall.Stat_t); ok {
-			links = strconv.FormatUint(stat.Nlink, 10)
+			links = strconv.FormatUint(uint64(stat.Nlink), 10)
 		}
 
 		// Owner and group (simplified)
