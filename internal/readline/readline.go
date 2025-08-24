@@ -35,6 +35,11 @@ func New(session *shell.Session) *Readline {
 	}
 }
 
+// SetPrompt sets the prompt string
+func (r *Readline) SetPrompt(prompt string) {
+	r.prompt = prompt
+}
+
 // ReadLine reads a line with advanced editing features
 func (r *Readline) ReadLine() (string, error) {
 	// Check if stdin is a terminal

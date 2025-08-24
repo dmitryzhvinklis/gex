@@ -8,6 +8,7 @@ import (
 
 	"gex/internal/cli"
 	"gex/internal/shell"
+	"gex/internal/ui"
 )
 
 // Cd changes the current working directory
@@ -99,28 +100,49 @@ func Exit(args []string) error {
 // Help displays help information
 func Help(args []string) error {
 	if len(args) == 0 {
-		// General help
-		fmt.Println("Gex Shell - High-Performance Linux Shell")
+		// General help with colors
+		ui.PrintHeader("Gex Shell - High-Performance Linux Shell")
 		fmt.Println()
-		fmt.Println("Built-in commands:")
+
+		ui.PrintInfo("Built-in commands:")
+		fmt.Println()
 
 		builtins := cli.GetAllBuiltins()
-		for name, info := range builtins {
-			fmt.Printf("  %-12s %s\n", name, info.Description)
+
+		// Group commands by category for better display
+		categories := map[string][]string{
+			"🏠 Shell":       {"cd", "pwd", "echo", "exit", "help", "history", "alias", "unalias", "env", "export", "which", "type"},
+			"📁 Files":       {"ls", "mkdir", "rmdir", "rm", "cp", "mv", "touch"},
+			"📝 Text":        {"cat", "head", "tail", "wc", "grep", "sort"},
+			"🖥️  System":    {"ps", "kill", "df", "du", "free", "uptime", "uname"},
+			"🔍 Search":      {"find", "locate"},
+			"🔐 Permissions": {"chmod", "chown", "chgrp"},
+			"🌐 Network":     {"ping", "wget", "curl", "netstat"},
+			"📦 Archives":    {"tar", "gzip", "gunzip", "zip", "unzip"},
 		}
 
-		fmt.Println()
-		fmt.Println("Use 'help <command>' for specific command help")
+		for category, commands := range categories {
+			fmt.Printf("%s%s%s\n", ui.BrightCyan, category, ui.Reset)
+			for _, name := range commands {
+				if info, exists := builtins[name]; exists {
+					coloredName := ui.Colorize(name, ui.BrightYellow)
+					fmt.Printf("  %-20s %s\n", coloredName, info.Description)
+				}
+			}
+			fmt.Println()
+		}
+
+		ui.PrintInfo("Use 'help <command>' for specific command help")
 		return nil
 	}
 
-	// Specific command help
+	// Specific command help with colors
 	cmdName := args[0]
 	info := cli.GetCommandInfo(cmdName)
 
-	fmt.Printf("Command: %s\n", info.Name)
-	fmt.Printf("Description: %s\n", info.Description)
-	fmt.Printf("Usage: %s\n", info.Usage)
+	fmt.Printf("%sCommand:%s %s\n", ui.BrightCyan, ui.Reset, ui.Colorize(info.Name, ui.BrightYellow))
+	fmt.Printf("%sDescription:%s %s\n", ui.BrightCyan, ui.Reset, info.Description)
+	fmt.Printf("%sUsage:%s %s\n", ui.BrightCyan, ui.Reset, ui.Colorize(info.Usage, ui.BrightGreen))
 
 	return nil
 }

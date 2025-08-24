@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"os/user"
 	"strings"
 	"syscall"
 
@@ -13,6 +14,7 @@ import (
 	"gex/internal/executor"
 	"gex/internal/readline"
 	"gex/internal/shell"
+	"gex/internal/ui"
 )
 
 const (
@@ -37,11 +39,27 @@ func main() {
 	// Initialize command pool for performance
 	core.InitializePool()
 
+	// Initialize color config
+	colorConfig := ui.DefaultColorConfig()
+
 	// Print welcome message
 	printWelcome()
 
+	// Get user info for prompt
+	currentUser, _ := user.Current()
+	hostname, _ := os.Hostname()
+	username := "user"
+	if currentUser != nil {
+		username = currentUser.Username
+	}
+
 	// Main REPL loop
 	for {
+		// Create dynamic colorful prompt
+		cwd, _ := os.Getwd()
+		prompt := colorConfig.FormatPrompt(username, hostname, cwd, SHELL_NAME)
+		reader.SetPrompt(prompt)
+
 		// Read input with readline support
 		input, err := reader.ReadLine()
 		if err != nil {
@@ -64,7 +82,7 @@ func main() {
 		// Parse and execute command
 		cmd, err := cli.Parse(input)
 		if err != nil {
-			fmt.Printf("Parse error: %v\n", err)
+			ui.PrintError(fmt.Sprintf("Parse error: %v", err))
 			continue
 		}
 
@@ -73,7 +91,7 @@ func main() {
 			if err.Error() == "exit" {
 				break
 			}
-			fmt.Printf("Error: %v\n", err)
+			ui.PrintError(fmt.Sprintf("%v", err))
 		}
 	}
 }
@@ -90,7 +108,5 @@ func setupSignalHandling() {
 }
 
 func printWelcome() {
-	fmt.Printf("Welcome to %s v%s - High-Performance Linux Shell\n", SHELL_NAME, VERSION)
-	fmt.Println("Type 'help' for available commands")
-	fmt.Println()
+	ui.PrintWelcome(SHELL_NAME, VERSION)
 }
