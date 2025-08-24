@@ -73,6 +73,9 @@ install_gex() {
     if [ -n "$GEX_LOCAL_PATH" ]; then
         log_info "Using local source code from: $GEX_LOCAL_PATH"
         cp -r "$GEX_LOCAL_PATH" ./gex
+    elif [ -f "$(dirname "$0")/go.mod" ]; then
+        log_info "Using local source code..."
+        cp -r "$(dirname "$0")" ./gex
     else
         log_info "Cloning from repository..."
         git clone "$GEX_REPO" gex
@@ -82,7 +85,8 @@ install_gex() {
     
     # Build the binary
     log_info "Building Gex..."
-    go build -ldflags="-s -w" -o gex main.go
+    go mod tidy
+    go build -ldflags="-s -w" -o gex .
     
     # Install binary
     log_info "Installing binary to $INSTALL_DIR..."

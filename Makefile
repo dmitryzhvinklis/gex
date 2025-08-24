@@ -21,16 +21,6 @@ build:
 	@go build $(GO_FLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) main.go
 	@echo "Build complete: $(BUILD_DIR)/$(BINARY_NAME)"
 
-# Build optimized release version
-release: clean
-	@echo "Building optimized release..."
-	@mkdir -p $(BUILD_DIR)
-	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
-		-ldflags="-s -w -X main.VERSION=$(VERSION)" \
-		-trimpath -o $(BUILD_DIR)/$(BINARY_NAME) main.go
-	@upx --best $(BUILD_DIR)/$(BINARY_NAME) 2>/dev/null || echo "UPX not available, skipping compression"
-	@echo "Release build complete: $(BUILD_DIR)/$(BINARY_NAME)"
-
 # Install to system
 install: build
 	@echo "Installing Gex to $(INSTALL_DIR)..."
@@ -43,20 +33,6 @@ uninstall:
 	@echo "Uninstalling Gex..."
 	@sudo rm -f $(INSTALL_DIR)/$(BINARY_NAME)
 	@echo "Uninstallation complete"
-
-# Run the shell
-run: build
-	@$(BUILD_DIR)/$(BINARY_NAME)
-
-# Run tests
-test:
-	@echo "Running tests..."
-	@go test -v ./...
-
-# Run benchmarks
-benchmark:
-	@echo "Running benchmarks..."
-	@go test $(BENCHMARK_FLAGS) -bench=. ./...
 
 # Performance profiling
 profile: build
